@@ -4,6 +4,7 @@ venv/
 
 # Archivos temporales y de sistema
 __pycache__/
+__pycache__
 *.pyc
 .DS_Store
 
