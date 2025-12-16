@@ -6,12 +6,6 @@ import json
 from http.server import BaseHTTPRequestHandler
 import google.generativeai as genai
 
-# Configure the API
-genai.configure(api_key=os.environ.get('GOOGLE_API_KEY'))
-
-# Create the model
-model = genai.GenerativeModel('gemini-2.0-flash-exp')
-
 class handler(BaseHTTPRequestHandler):
     def do_OPTIONS(self):
         """Handle CORS preflight"""
@@ -24,11 +18,29 @@ class handler(BaseHTTPRequestHandler):
     def do_POST(self):
         """Handle POST request"""
         try:
+            # Get and validate API key
+            api_key = os.environ.get('GOOGLE_API_KEY')
+
+            if not api_key:
+                print("[ERROR] GOOGLE_API_KEY environment variable is not set!")
+                self.send_error_response(500, "API Key not configured. Please add GOOGLE_API_KEY to environment variables in Vercel.")
+                return
+
+            print(f"[INFO] API Key configured: {api_key[:10]}...")
+
+            # Configure the API
+            genai.configure(api_key=api_key)
+
+            # Create the model - Using stable Gemini 1.5 Flash
+            model = genai.GenerativeModel('gemini-1.5-flash')
+
             # Get content length
             content_length = int(self.headers.get('Content-Length', 0))
 
             # Read and parse body
             body = self.rfile.read(content_length).decode('utf-8')
+            print(f"[DEBUG] Request body: {body}")
+
             data = json.loads(body) if body else {}
 
             question = data.get('question', '').strip()
@@ -41,6 +53,8 @@ class handler(BaseHTTPRequestHandler):
             print(f"[INFO] Processing question: {question}")
 
             response = model.generate_content(question)
+
+            print(f"[INFO] Got response: {response.text[:100]}...")
 
             # Send success response
             self.send_response(200)
@@ -56,8 +70,10 @@ class handler(BaseHTTPRequestHandler):
             self.wfile.write(json.dumps(result).encode('utf-8'))
 
         except Exception as e:
+            import traceback
             print(f"[ERROR] {str(e)}")
-            self.send_error_response(500, str(e))
+            print(f"[ERROR] Traceback: {traceback.format_exc()}")
+            self.send_error_response(500, f"Server error: {str(e)}")
 
     def send_error_response(self, code, message):
         """Send error response"""
