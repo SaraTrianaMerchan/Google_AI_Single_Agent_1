@@ -12,7 +12,7 @@
   "rewrites": [
     {
       "source": "/api/ask",
-      "destination": "/api/ask.py"
+      "destination": "/api/index.py"
     }
   ]
 }
