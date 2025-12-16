@@ -30,28 +30,37 @@ root_agent = Agent(
     tools=[google_search],
 )
 
-async def main():
-    print("[OK] Root Agent defined.")
-    
-    #---create runner---
-    # CORREGIDO: usar el mismo app_name que espera el agente
+async def ask_agent(question: str) -> str:
+    """
+    Ask the agent a question and get the response.
+
+    Args:
+        question: The question to ask the agent
+
+    Returns:
+        The agent's response as a string
+    """
     runner = InMemoryRunner(agent=root_agent, app_name="agents")
-    
-    print("[OK] Runner created.")
-    
-    #---async function to run agent---
-    question = "What is the Agent Developer Kit from Google?"
-    
-    print(f"[DEBUG] Sending question: {question}")
-    
+
     try:
         response = await runner.run_debug(question)
-        print("\n### Agent response:\n")
+        return str(response)
     except Exception as e:
         print(f"[ERROR] Failed to get response: {e}")
-        print(f"[ERROR] Error type: {type(e).__name__}")
         import traceback
         traceback.print_exc()
+        raise e
+
+async def main():
+    print("[OK] Root Agent defined.")
+    print("[OK] Runner created.")
+
+    question = "What is the Agent Developer Kit from Google?"
+    print(f"[DEBUG] Sending question: {question}")
+
+    response = await ask_agent(question)
+    print("\n### Agent response:\n")
+    print(response)
 
 #---Run the script---
 
