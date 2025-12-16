@@ -17,8 +17,8 @@ else:
 # Configure the API
 genai.configure(api_key=api_key)
 
-# Create the model
-model = genai.GenerativeModel('gemini-2.0-flash-exp')
+# Create the model - Using stable Gemini 1.5 Flash
+model = genai.GenerativeModel('gemini-1.5-flash')
 
 class handler(BaseHTTPRequestHandler):
     def do_OPTIONS(self):
