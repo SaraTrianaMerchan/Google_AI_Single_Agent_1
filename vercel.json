@@ -4,6 +4,11 @@
   "devCommand": "cd frontend && npm run dev",
   "installCommand": "cd frontend && npm install",
   "framework": null,
+  "functions": {
+    "api/**": {
+      "excludeFiles": "{node_modules/**,.git/**,__pycache__/**,*.pyc,.env,.DS_Store}"
+    }
+  },
   "rewrites": [
     {
       "source": "/api/ask",
