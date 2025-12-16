@@ -6,20 +6,6 @@ import json
 from http.server import BaseHTTPRequestHandler
 import google.generativeai as genai
 
-# Get API key
-api_key = os.environ.get('GOOGLE_API_KEY')
-
-if not api_key:
-    print("[ERROR] GOOGLE_API_KEY environment variable is not set!")
-else:
-    print(f"[INFO] API Key configured: {api_key[:10]}...")
-
-# Configure the API
-genai.configure(api_key=api_key)
-
-# Create the model - Using stable Gemini 1.5 Flash
-model = genai.GenerativeModel('gemini-1.5-flash')
-
 class handler(BaseHTTPRequestHandler):
     def do_OPTIONS(self):
         """Handle CORS preflight"""
@@ -32,10 +18,21 @@ class handler(BaseHTTPRequestHandler):
     def do_POST(self):
         """Handle POST request"""
         try:
-            # Check API key
-            if not os.environ.get('GOOGLE_API_KEY'):
-                self.send_error_response(500, "API Key not configured. Please add GOOGLE_API_KEY to environment variables.")
+            # Get and validate API key
+            api_key = os.environ.get('GOOGLE_API_KEY')
+
+            if not api_key:
+                print("[ERROR] GOOGLE_API_KEY environment variable is not set!")
+                self.send_error_response(500, "API Key not configured. Please add GOOGLE_API_KEY to environment variables in Vercel.")
                 return
+
+            print(f"[INFO] API Key configured: {api_key[:10]}...")
+
+            # Configure the API
+            genai.configure(api_key=api_key)
+
+            # Create the model - Using stable Gemini 1.5 Flash
+            model = genai.GenerativeModel('gemini-1.5-flash')
 
             # Get content length
             content_length = int(self.headers.get('Content-Length', 0))
@@ -76,7 +73,7 @@ class handler(BaseHTTPRequestHandler):
             import traceback
             print(f"[ERROR] {str(e)}")
             print(f"[ERROR] Traceback: {traceback.format_exc()}")
-            self.send_error_response(500, str(e))
+            self.send_error_response(500, f"Server error: {str(e)}")
 
     def send_error_response(self, code, message):
         """Send error response"""
