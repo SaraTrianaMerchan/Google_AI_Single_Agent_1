@@ -32,7 +32,7 @@ class handler(BaseHTTPRequestHandler):
             genai.configure(api_key=api_key)
 
             # Create the model - Using stable Gemini 1.5 Flash
-            model = genai.GenerativeModel('gemini-1.5-flash')
+            model = genai.GenerativeModel("gemini-2.5-flash-lite")
 
             # Get content length
             content_length = int(self.headers.get('Content-Length', 0))
